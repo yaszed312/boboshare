@@ -1,0 +1,89 @@
+<div class="upload-container">
+  <div class="upload-header">
+    <h2>Share Your Daily Moments</h2>
+    <p>Upload photos or videos to share with your friends via unique URLs</p>
+  </div>
+
+  <div class="upload-area" 
+       [class.dragover]="isDragOver"
+       (dragover)="onDragOver($event)"
+       (dragleave)="onDragLeave($event)"
+       (drop)="onDrop($event)">
+    
+    <div class="upload-content" *ngIf="!selectedFiles.length">
+      <div class="upload-icon">
+        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 16L12 8M12 8L15 11M12 8L9 11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M3 15V16C3 18.8284 3 20.2426 3.87868 21.1213C4.75736 22 6.17157 22 9 22H15C17.8284 22 19.2426 22 20.1213 21.1213C21 20.2426 21 18.8284 21 16V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <h3>Drag & Drop Files Here</h3>
+      <p>or click to browse</p>
+      <input type="file" 
+             #fileInput 
+             multiple 
+             accept="image/*,video/*" 
+             (change)="onFileSelected($event)"
+             class="file-input">
+      <button class="browse-btn" (click)="fileInput.click()">Browse Files</button>
+    </div>
+
+    <div class="file-preview" *ngIf="selectedFiles.length">
+      <div class="preview-header">
+        <h3>Selected Files ({{ selectedFiles.length }})</h3>
+        <button class="clear-btn" (click)="clearFiles()">Clear All</button>
+      </div>
+      
+      <div class="file-grid">
+        <div class="file-item" *ngFor="let file of selectedFiles; let i = index">
+          <div class="file-preview-content">
+            <img *ngIf="file.type.startsWith('image/')" 
+                 [src]="file.preview" 
+                 [alt]="file.name"
+                 class="preview-image">
+            <video *ngIf="file.type.startsWith('video/')" 
+                   [src]="file.preview" 
+                   class="preview-video" 
+                   muted>
+            </video>
+            <div class="file-info">
+              <p class="file-name">{{ file.name }}</p>
+              <p class="file-size">{{ formatFileSize(file.size) }}</p>
+            </div>
+            <button class="remove-btn" (click)="removeFile(i)">×</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="upload-actions">
+        <button class="upload-btn" 
+                [disabled]="isUploading" 
+                (click)="uploadFiles()">
+          <span *ngIf="!isUploading">Upload & Generate Links</span>
+          <span *ngIf="isUploading">Uploading...</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="upload-results" *ngIf="uploadResults.length">
+    <h3>Upload Results</h3>
+    <div class="results-list">
+      <div class="result-item" *ngFor="let result of uploadResults">
+        <div class="result-content">
+          <div class="result-preview">
+            <img *ngIf="result.type === 'image'" [src]="result.url" [alt]="result.name">
+            <video *ngIf="result.type === 'video'" [src]="result.url" muted></video>
+          </div>
+          <div class="result-info">
+            <h4>{{ result.name }}</h4>
+            <p class="share-url">Share URL: <a [href]="result.shareUrl" target="_blank">{{ result.shareUrl }}</a></p>
+            <button class="copy-btn" (click)="copyToClipboard(result.shareUrl)">
+              Copy Link
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

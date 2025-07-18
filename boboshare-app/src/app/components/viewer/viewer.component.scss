@@ -1,0 +1,283 @@
+.viewer-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  min-height: calc(100vh - 80px);
+  display: flex;
+  flex-direction: column;
+}
+
+.viewer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: white;
+  padding: 1.5rem 2rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+}
+
+.back-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #f7fafc;
+  color: #4a5568;
+  border: 1px solid #e2e8f0;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.back-btn:hover {
+  background: #edf2f7;
+  transform: translateX(-2px);
+}
+
+.file-info h2 {
+  color: #2d3748;
+  margin: 0 0 0.25rem 0;
+  font-size: 1.5rem;
+}
+
+.file-info p {
+  color: #718096;
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.viewer-actions {
+  display: flex;
+  gap: 1rem;
+}
+
+.action-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+}
+
+.share-btn {
+  background: #667eea;
+  color: white;
+}
+
+.share-btn:hover {
+  background: #5a67d8;
+  transform: translateY(-2px);
+}
+
+.download-btn {
+  background: #48bb78;
+  color: white;
+}
+
+.download-btn:hover {
+  background: #38a169;
+  transform: translateY(-2px);
+}
+
+.media-viewer {
+  flex: 1;
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+}
+
+.media-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  padding: 2rem;
+}
+
+.media-content {
+  max-width: 100%;
+  max-height: 70vh;
+  object-fit: contain;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.media-content:hover {
+  transform: scale(1.02);
+}
+
+.viewer-footer {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.share-info h3 {
+  color: #2d3748;
+  margin: 0 0 1.5rem 0;
+  font-size: 1.25rem;
+}
+
+.share-url-container {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+}
+
+.share-url-input {
+  flex: 1;
+  padding: 0.75rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  background: #f7fafc;
+}
+
+.copy-btn {
+  background: #667eea;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.copy-btn:hover {
+  background: #5a67d8;
+}
+
+.share-options {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.social-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+  color: white;
+}
+
+.facebook-btn {
+  background: #1877f2;
+}
+
+.facebook-btn:hover {
+  background: #166fe5;
+  transform: translateY(-2px);
+}
+
+.twitter-btn {
+  background: #1da1f2;
+}
+
+.twitter-btn:hover {
+  background: #1a91da;
+  transform: translateY(-2px);
+}
+
+.whatsapp-btn {
+  background: #25d366;
+}
+
+.whatsapp-btn:hover {
+  background: #22c55e;
+  transform: translateY(-2px);
+}
+
+// Not found styles
+.not-found {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 80px);
+}
+
+.not-found-content {
+  text-align: center;
+  background: white;
+  padding: 3rem 2rem;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  max-width: 400px;
+}
+
+.not-found-icon {
+  color: #a0aec0;
+  margin-bottom: 1.5rem;
+}
+
+.not-found h2 {
+  color: #2d3748;
+  font-size: 1.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.not-found p {
+  color: #718096;
+  margin-bottom: 2rem;
+}
+
+.back-home-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 0.75rem 2rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.back-home-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+}
+
+@media (max-width: 768px) {
+  .viewer-header {
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+  }
+  
+  .viewer-actions {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .media-container {
+    padding: 1rem;
+    min-height: 300px;
+  }
+  
+  .share-options {
+    justify-content: center;
+  }
+  
+  .social-btn {
+    flex: 1;
+    min-width: 120px;
+  }
+}
