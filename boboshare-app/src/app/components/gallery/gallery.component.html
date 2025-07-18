@@ -84,10 +84,10 @@
       </div>
       <div class="modal-content">
         <div class="share-preview">
-          <img *ngIf="selectedFile?.type.startsWith('image/')" 
+          <img *ngIf="selectedFile?.type?.startsWith('image/')" 
                [src]="selectedFile?.url" 
                [alt]="selectedFile?.name">
-          <video *ngIf="selectedFile?.type.startsWith('video/')" 
+          <video *ngIf="selectedFile?.type?.startsWith('video/')" 
                  [src]="selectedFile?.url" 
                  muted>
           </video>

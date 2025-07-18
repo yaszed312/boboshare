@@ -1,4 +1,21 @@
 <div class="upload-container">
+  <!-- Test Section - Remove this later -->
+  <div style="background: #e3f2fd; padding: 15px; margin-bottom: 20px; border-radius: 8px; border: 2px solid #2196f3;">
+    <h3 style="color: #1976d2; margin: 0 0 10px 0;">🧪 Component Test Section</h3>
+    <p style="margin: 5px 0;"><strong>Auto Collection URL:</strong> {{ autoCollectionUrl || 'EMPTY' }}</p>
+    <p style="margin: 5px 0;"><strong>Upload Results Count:</strong> {{ uploadResults.length }}</p>
+    <p style="margin: 5px 0;"><strong>Selected Files Count:</strong> {{ selectedFiles.length }}</p>
+    <button (click)="generateAutoCollectionUrl()" style="background: #2196f3; color: white; border: none; padding: 8px 16px; border-radius: 4px; margin-right: 10px;">
+      Generate Test URL
+    </button>
+    <button (click)="forceGenerateUrl()" style="background: #4caf50; color: white; border: none; padding: 8px 16px; border-radius: 4px; margin-right: 10px;">
+      Force Generate
+    </button>
+    <button (click)="testComponent()" style="background: #ff9800; color: white; border: none; padding: 8px 16px; border-radius: 4px;">
+      Test Component
+    </button>
+  </div>
+
   <div class="upload-header">
     <h2>Share Your Daily Moments</h2>
     <p>Upload photos or videos to share with your friends via unique URLs</p>
@@ -68,18 +85,124 @@
 
   <div class="upload-results" *ngIf="uploadResults.length">
     <h3>Upload Results</h3>
-    <div class="results-list">
-      <div class="result-item" *ngFor="let result of uploadResults">
-        <div class="result-content">
-          <div class="result-preview">
+    
+    <!-- Individual File Links -->
+    <div class="individual-links-section">
+      <h4>Individual File Links</h4>
+      <div class="results-list">
+        <div class="result-item" *ngFor="let result of uploadResults">
+          <div class="result-content">
+            <div class="result-preview">
+              <img *ngIf="result.type === 'image'" [src]="result.url" [alt]="result.name">
+              <video *ngIf="result.type === 'video'" [src]="result.url" muted></video>
+            </div>
+            <div class="result-info">
+              <h5>{{ result.name }}</h5>
+              <p class="share-url">Share URL: <a [href]="result.shareUrl" target="_blank">{{ result.shareUrl }}</a></p>
+              <div class="result-actions">
+                <button class="copy-btn" (click)="copyToClipboard(result.shareUrl)">
+                  Copy Link
+                </button>
+                <button class="add-to-collection-btn" (click)="addToCollection(result)">
+                  Add to Collection
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Auto-Generated Collection URL -->
+    <div class="auto-collection-section">
+      <h4>🎯 Share All Files Together</h4>
+      <p class="auto-collection-description">Single URL to share all {{ uploadResults.length }} files at once</p>
+      
+      <div class="auto-collection-url" *ngIf="autoCollectionUrl">
+        <div class="url-display">
+          <span class="url-label">Collection Share URL:</span>
+          <a [href]="autoCollectionUrl" target="_blank" class="collection-url-link">{{ autoCollectionUrl }}</a>
+        </div>
+        <div class="auto-collection-actions">
+          <button class="copy-collection-btn" (click)="copyToClipboard(autoCollectionUrl)">
+            📋 Copy Collection URL
+          </button>
+          <button class="save-collection-btn" (click)="saveAutoCollection()">
+            💾 Save as Named Collection
+          </button>
+        </div>
+      </div>
+      
+      <div class="auto-collection-url" *ngIf="!autoCollectionUrl">
+        <div class="url-display">
+          <span class="url-label">Collection Share URL:</span>
+          <p style="color: #ffd700; font-style: italic;">No collection URL generated yet</p>
+        </div>
+        <div class="auto-collection-actions">
+          <button class="copy-collection-btn" (click)="generateAutoCollectionUrl()" style="background: #ff6b6b;">
+            🔧 Generate Collection URL Now
+          </button>
+        </div>
+      </div>
+      
+      <div class="auto-collection-preview">
+        <h5>Files in this collection:</h5>
+        <div class="collection-files-grid">
+          <div class="collection-file-item" *ngFor="let result of uploadResults">
             <img *ngIf="result.type === 'image'" [src]="result.url" [alt]="result.name">
             <video *ngIf="result.type === 'video'" [src]="result.url" muted></video>
+            <span class="file-name">{{ result.name }}</span>
           </div>
-          <div class="result-info">
-            <h4>{{ result.name }}</h4>
-            <p class="share-url">Share URL: <a [href]="result.shareUrl" target="_blank">{{ result.shareUrl }}</a></p>
-            <button class="copy-btn" (click)="copyToClipboard(result.shareUrl)">
-              Copy Link
+        </div>
+      </div>
+    </div>
+    
+    <!-- Debug info (remove this later) -->
+    <div class="debug-info" style="background: #f0f0f0; padding: 10px; margin: 10px 0; border-radius: 5px;">
+      <p><strong>Debug Info:</strong></p>
+      <p>Upload Results: {{ uploadResults.length }}</p>
+      <p>Auto Collection URL: {{ autoCollectionUrl || 'Not generated' }}</p>
+      <p>Is Uploading: {{ isUploading }}</p>
+      <button (click)="generateAutoCollectionUrl()" style="background: #007bff; color: white; border: none; padding: 5px 10px; border-radius: 3px; margin: 5px;">
+        Test Generate URL
+      </button>
+      <button (click)="forceGenerateUrl()" style="background: #28a745; color: white; border: none; padding: 5px 10px; border-radius: 3px; margin: 5px;">
+        Force Generate URL
+      </button>
+    </div>
+    
+    <!-- Manual Collection Options -->
+    <div class="collection-section">
+      <h4>📁 Manage Collections</h4>
+      <p class="collection-description">Add files to existing collections or create new ones</p>
+      
+      <div class="collection-options">
+        <div class="collection-selector">
+          <label for="collectionSelect">Add to existing collection:</label>
+          <select id="collectionSelect" class="collection-select" [(ngModel)]="selectedCollectionId">
+            <option value="">Select a collection...</option>
+            <option *ngFor="let collection of collections" [value]="collection.id">
+              {{ collection.name }} ({{ collection.files.length }} files)
+            </option>
+          </select>
+          <button class="add-all-btn" 
+                  [disabled]="!selectedCollectionId" 
+                  (click)="addAllToCollection()">
+            Add to Collection
+          </button>
+        </div>
+        
+        <div class="create-new-collection">
+          <p>Or create a new collection:</p>
+          <div class="new-collection-form">
+            <input type="text" 
+                   [(ngModel)]="newCollectionName" 
+                   placeholder="Collection name"
+                   class="collection-name-input">
+            <button class="create-collection-btn" 
+                    [disabled]="!newCollectionName.trim()" 
+                    (click)="createAndAddToCollection()">
+              Create & Add All
             </button>
           </div>
         </div>

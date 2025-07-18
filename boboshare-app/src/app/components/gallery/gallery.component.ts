@@ -103,7 +103,7 @@ export class GalleryComponent implements OnInit {
   }
 
   async copyShareUrl(): Promise<void> {
-    if (this.selectedFile) {
+    if (this.selectedFile?.shareUrl) {
       try {
         await navigator.clipboard.writeText(this.selectedFile.shareUrl);
         // In a real app, you'd show a success message
