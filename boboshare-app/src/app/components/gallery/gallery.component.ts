@@ -52,9 +52,9 @@ export class GalleryComponent implements OnInit {
     // Apply filter
     let filtered = this.allFiles;
     if (this.currentFilter === 'images') {
-      filtered = this.allFiles.filter(file => file.type.startsWith('image/'));
+      filtered = this.allFiles.filter(file => file.type === 'image' || file.type.startsWith('image/'));
     } else if (this.currentFilter === 'videos') {
-      filtered = this.allFiles.filter(file => file.type.startsWith('video/'));
+      filtered = this.allFiles.filter(file => file.type === 'video' || file.type.startsWith('video/'));
     }
 
     // Apply sort

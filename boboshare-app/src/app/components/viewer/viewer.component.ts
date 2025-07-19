@@ -31,8 +31,8 @@ export class ViewerComponent implements OnInit {
     });
   }
 
-  private loadFile(fileId: string): void {
-    this.file = this.mediaService.getFileById(fileId) || null;
+  private async loadFile(fileId: string): Promise<void> {
+    this.file = await this.mediaService.getFileById(fileId) || null;
     if (this.file) {
       this.shareUrl = this.urlGeneratorService.generateShareUrl(fileId);
     }

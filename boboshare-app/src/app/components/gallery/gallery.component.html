@@ -24,13 +24,13 @@
     <div class="media-grid">
       <div class="media-item" *ngFor="let file of filteredFiles" (click)="viewFile(file)">
         <div class="media-preview">
-          <img *ngIf="file.type.startsWith('image/')" 
+          <img *ngIf="file.type === 'image' || file.type.startsWith('image/')"
                [src]="file.url" 
                [alt]="file.name"
-               class="media-image">
-          <video *ngIf="file.type.startsWith('video/')" 
+               class="file-preview">
+          <video *ngIf="file.type === 'video' || file.type.startsWith('video/')"
                  [src]="file.url" 
-                 class="media-video" 
+                 class="file-preview" 
                  muted>
           </video>
           <div class="media-overlay">

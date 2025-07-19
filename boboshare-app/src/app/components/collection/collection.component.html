@@ -79,11 +79,13 @@
         <div class="collection-files" *ngIf="collection.files.length">
           <div class="files-grid">
             <div class="file-thumbnail" *ngFor="let file of collection.files.slice(0, 6)">
-              <img *ngIf="file.type.startsWith('image/')" 
+              <img *ngIf="file.type === 'image' || file.type.startsWith('image/')"
                    [src]="file.url" 
-                   [alt]="file.name">
-              <video *ngIf="file.type.startsWith('video/')" 
+                   [alt]="file.name"
+                   class="file-preview">
+              <video *ngIf="file.type === 'video' || file.type.startsWith('video/')"
                      [src]="file.url" 
+                     class="file-preview" 
                      muted>
               </video>
             </div>
@@ -127,10 +129,10 @@
           <p *ngIf="selectedCollection?.description">{{ selectedCollection?.description }}</p>
           <div class="preview-files">
             <div class="preview-file" *ngFor="let file of selectedCollection?.files?.slice(0, 4) || []">
-              <img *ngIf="file.type.startsWith('image/')" 
+              <img *ngIf="file.type === 'image' || file.type.startsWith('image/')" 
                    [src]="file.url" 
                    [alt]="file.name">
-              <video *ngIf="file.type.startsWith('video/')" 
+              <video *ngIf="file.type === 'video' || file.type.startsWith('video/')" 
                      [src]="file.url" 
                      muted>
               </video>

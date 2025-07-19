@@ -13,7 +13,7 @@ interface UploadResult {
   name: string;
   url: string;
   shareUrl: string;
-  type: 'image' | 'video';
+  type: string; // Accept MIME types like 'video/mp4', 'image/jpeg'
 }
 
 @Component({
@@ -38,8 +38,6 @@ export class UploadComponent {
     private urlGeneratorService: UrlGeneratorService,
     private collectionService: CollectionService
   ) {
-    console.log('UploadComponent initialized');
-    console.log('Initial autoCollectionUrl:', this.autoCollectionUrl);
     this.loadCollections();
   }
 
@@ -119,77 +117,107 @@ export class UploadComponent {
   async uploadFiles(): Promise<void> {
     if (this.selectedFiles.length === 0) return;
 
-    console.log('Starting upload process...');
     this.isUploading = true;
     this.uploadResults = [];
-    this.autoCollectionUrl = ''; // Reset auto collection URL
+    this.autoCollectionUrl = '';
 
     try {
-      console.log('Uploading files:', this.selectedFiles.length);
-      
       for (const file of this.selectedFiles) {
-        console.log('Uploading file:', file.name);
-        const uploadResult = await this.mediaService.uploadFile(file);
+        let fileUrl: string;
+        
+        // For videos, use blob URL (large files will be handled by media service)
+        if (file.type.startsWith('video/')) {
+          fileUrl = URL.createObjectURL(file);
+        } else {
+          // For images, use base64
+          fileUrl = await this.fileToBase64(file);
+        }
+        
+        const uploadResult = await this.mediaService.uploadFile(file, fileUrl);
         const shareUrl = this.urlGeneratorService.generateShareUrl(uploadResult.id);
         
         const result: UploadResult = {
           name: file.name,
-          url: uploadResult.url,
+          url: fileUrl,
           shareUrl: shareUrl,
-          type: file.type.startsWith('image/') ? 'image' : 'video'
+          type: file.type
         };
         
         this.uploadResults.push(result);
-        console.log('File uploaded successfully:', result);
       }
       
-      console.log('All files uploaded. Generating auto collection URL...');
       // Generate auto collection URL after all files are uploaded
       this.generateAutoCollectionUrl();
-      
-      console.log('Upload process completed successfully');
     } catch (error) {
       console.error('Upload failed:', error);
       // Even if upload fails, try to generate a collection URL for the files we have
       if (this.uploadResults.length > 0) {
-        console.log('Generating collection URL for uploaded files despite error...');
         this.generateAutoCollectionUrl();
       }
     } finally {
       this.isUploading = false;
-      console.log('Final state - Upload Results:', this.uploadResults.length, 'Auto URL:', this.autoCollectionUrl);
     }
   }
 
-  generateAutoCollectionUrl(): void {
-    // Create a temporary collection ID for the uploaded files
-    const tempCollectionId = 'temp_' + Date.now();
-    this.autoCollectionUrl = this.urlGeneratorService.generateCollectionShareUrl(tempCollectionId);
-    console.log('Generated auto collection URL:', this.autoCollectionUrl);
-    console.log('Upload results length:', this.uploadResults.length);
+  private fileToBase64(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = error => reject(error);
+    });
   }
 
-  forceGenerateUrl(): void {
-    // Force generate a URL even if no files are uploaded (for testing)
-    const tempCollectionId = 'force_' + Date.now();
-    this.autoCollectionUrl = this.urlGeneratorService.generateCollectionShareUrl(tempCollectionId);
-    console.log('Force generated URL:', this.autoCollectionUrl);
-    alert('Force generated URL: ' + this.autoCollectionUrl);
-  }
-
-  testComponent(): void {
-    console.log('=== Component Test ===');
-    console.log('Selected Files:', this.selectedFiles.length);
-    console.log('Upload Results:', this.uploadResults.length);
-    console.log('Auto Collection URL:', this.autoCollectionUrl);
-    console.log('Is Uploading:', this.isUploading);
-    console.log('Collections:', this.collections.length);
+  async generateAutoCollectionUrl(): Promise<void> {
+    console.log('=== DEBUG: generateAutoCollectionUrl ===');
+    console.log('uploadResults:', this.uploadResults);
     
-    // Test URL generation
-    const testUrl = this.urlGeneratorService.generateCollectionShareUrl('test_' + Date.now());
-    console.log('Test URL generated:', testUrl);
+    // Create a real collection with the uploaded files
+    const collectionName = `Collection_${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}`;
+    const collection = this.collectionService.createCollection(collectionName);
     
-    alert('Component test completed. Check console for details.');
+    console.log('Created collection:', collection);
+    
+    // Add all uploaded files to the collection
+    for (let i = 0; i < this.uploadResults.length; i++) {
+      const result = this.uploadResults[i];
+      console.log(`Processing file ${i + 1}:`, result);
+      
+      // Get the actual file from media service using the share URL
+      const fileId = result.shareUrl.split('/').pop() || '';
+      console.log('Extracted fileId:', fileId);
+      
+      const actualFile = await this.mediaService.getFileById(fileId);
+      console.log('Found actual file:', actualFile);
+      
+      if (actualFile) {
+        // Use the actual file data from media service
+        console.log('Adding actual file to collection:', actualFile);
+        this.collectionService.addFileToCollection(collection.id, actualFile);
+      } else {
+        // Fallback: create a file object with the data we have
+        const fileForCollection: any = {
+          id: fileId,
+          name: result.name,
+          url: result.url,
+          type: result.type,
+          size: 0,
+          uploadedAt: new Date()
+        };
+        
+        console.log('Adding fallback file to collection:', fileForCollection);
+        this.collectionService.addFileToCollection(collection.id, fileForCollection);
+      }
+    }
+    
+    // Check the final collection state
+    const finalCollection = this.collectionService.getCollection(collection.id);
+    console.log('Final collection state:', finalCollection);
+    
+    // Generate the collection URL using the real collection ID
+    this.autoCollectionUrl = this.urlGeneratorService.generateCollectionShareUrl(collection.id);
+    console.log('Generated collection URL:', this.autoCollectionUrl);
+    console.log('=== END DEBUG ===');
   }
 
   async copyToClipboard(text: string): Promise<void> {
@@ -207,35 +235,51 @@ export class UploadComponent {
     console.log('Add to collection:', result);
   }
 
-  addAllToCollection(): void {
+  async addAllToCollection(): Promise<void> {
     if (!this.selectedCollectionId) return;
 
     // Add all uploaded files to the selected collection
-    this.uploadResults.forEach(result => {
-      const file = this.mediaService.getFileById(result.shareUrl.split('/').pop() || '');
+    for (const result of this.uploadResults) {
+      const file = await this.mediaService.getFileById(result.shareUrl.split('/').pop() || '');
       if (file) {
         this.collectionService.addFileToCollection(this.selectedCollectionId, file);
       }
-    });
+    }
 
     this.selectedCollectionId = '';
     this.loadCollections();
     // In a real app, you'd show a success message
   }
 
-  createAndAddToCollection(): void {
+  async createAndAddToCollection(): Promise<void> {
     if (!this.newCollectionName.trim()) return;
 
     // Create new collection
     const collection = this.collectionService.createCollection(this.newCollectionName.trim());
     
     // Add all uploaded files to the new collection
-    this.uploadResults.forEach(result => {
-      const file = this.mediaService.getFileById(result.shareUrl.split('/').pop() || '');
-      if (file) {
-        this.collectionService.addFileToCollection(collection.id, file);
+    for (const result of this.uploadResults) {
+      // Get the actual file from media service using the share URL
+      const fileId = result.shareUrl.split('/').pop() || '';
+      const actualFile = await this.mediaService.getFileById(fileId);
+      
+      if (actualFile) {
+        // Use the actual file data from media service
+        this.collectionService.addFileToCollection(collection.id, actualFile);
+      } else {
+        // Fallback: create a file object with the data we have
+        const fileForCollection: any = {
+          id: fileId,
+          name: result.name,
+          url: result.url,
+          type: result.type,
+          size: 0,
+          uploadedAt: new Date()
+        };
+        
+        this.collectionService.addFileToCollection(collection.id, fileForCollection);
       }
-    });
+    }
 
     // Generate collection share URL
     const collectionShareUrl = this.urlGeneratorService.generateCollectionShareUrl(collection.id);
@@ -247,7 +291,7 @@ export class UploadComponent {
     this.loadCollections();
   }
 
-  saveAutoCollection(): void {
+  async saveAutoCollection(): Promise<void> {
     // Prompt user for collection name
     const collectionName = prompt('Enter a name for this collection:');
     if (!collectionName?.trim()) return;
@@ -256,12 +300,28 @@ export class UploadComponent {
     const collection = this.collectionService.createCollection(collectionName.trim());
     
     // Add all uploaded files to the new collection
-    this.uploadResults.forEach(result => {
-      const file = this.mediaService.getFileById(result.shareUrl.split('/').pop() || '');
-      if (file) {
-        this.collectionService.addFileToCollection(collection.id, file);
+    for (const result of this.uploadResults) {
+      // Get the actual file from media service using the share URL
+      const fileId = result.shareUrl.split('/').pop() || '';
+      const actualFile = await this.mediaService.getFileById(fileId);
+      
+      if (actualFile) {
+        // Use the actual file data from media service
+        this.collectionService.addFileToCollection(collection.id, actualFile);
+      } else {
+        // Fallback: create a file object with the data we have
+        const fileForCollection: any = {
+          id: fileId,
+          name: result.name,
+          url: result.url,
+          type: result.type,
+          size: 0,
+          uploadedAt: new Date()
+        };
+        
+        this.collectionService.addFileToCollection(collection.id, fileForCollection);
       }
-    });
+    }
 
     // Update the auto collection URL to use the new collection ID
     this.autoCollectionUrl = this.urlGeneratorService.generateCollectionShareUrl(collection.id);

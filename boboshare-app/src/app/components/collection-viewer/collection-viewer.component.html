@@ -1,0 +1,128 @@
+<div class="collection-viewer-container">
+  <!-- Loading State -->
+  <div class="loading-state" *ngIf="loading">
+    <div class="loading-spinner">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="spinner"/>
+      </svg>
+    </div>
+    <p>Loading collection...</p>
+  </div>
+
+  <!-- Error State -->
+  <div class="error-state" *ngIf="error">
+    <div class="error-content">
+      <div class="error-icon">
+        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" fill="currentColor"/>
+        </svg>
+      </div>
+      <h2>Collection Not Found</h2>
+      <p>The collection you're looking for doesn't exist or has been removed.</p>
+      <button class="back-home-btn" (click)="goBack()">Go Back</button>
+    </div>
+  </div>
+
+  <!-- Collection Content -->
+  <div class="collection-content" *ngIf="collection && !loading && !error">
+    <div class="collection-header">
+      <button class="back-btn" (click)="goBack()">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M19 12H5M12 19l-7-7 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Back
+      </button>
+      <div class="collection-info">
+        <h1>{{ collection.name }}</h1>
+        <p *ngIf="collection.description">{{ collection.description }}</p>
+        <p class="collection-meta">
+          {{ collectionFiles.length }} files • 
+          {{ formatDate(collection.updatedAt) }}
+        </p>
+      </div>
+      <div class="collection-actions">
+        <button class="action-btn download-all-btn" (click)="downloadAllFiles()" title="Download All Files">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Download All
+        </button>
+        <button class="action-btn share-btn" (click)="shareCollection()" title="Share Collection">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M18 8C19.6569 8 21 6.65685 21 5C21 3.34315 19.6569 2 18 2C16.3431 2 15 3.34315 15 5C15 5.12548 15.0077 5.24917 15.0227 5.37061L8.08264 9.26727C7.54305 8.48822 6.61644 8 5.5 8C4.11929 8 3 9.11929 3 10.5C3 11.8807 4.11929 13 5.5 13C6.61644 13 7.54305 12.5118 8.08264 11.7327L15.0227 15.6294C15.0077 15.7508 15 15.8745 15 16C15 17.6569 16.3431 19 18 19C19.6569 19 21 17.6569 21 16C21 14.3431 19.6569 13 18 13C16.8836 13 15.957 13.4882 15.4174 14.2673L8.47736 10.3706C8.49232 10.2492 8.5 10.1255 8.5 10C8.5 9.87452 8.49232 9.75083 8.47736 9.62939L15.4174 5.73273C15.957 6.51178 16.8836 7 18 7Z" fill="currentColor"/>
+          </svg>
+          Share
+        </button>
+      </div>
+    </div>
+
+    <div class="files-section">
+      <div class="files-header">
+        <h2>Files in this Collection</h2>
+        <p>Click on any file to view it, or use the download buttons to save files to your device.</p>
+      </div>
+
+      <div class="files-grid" *ngIf="collectionFiles.length">
+        <div class="file-card" *ngFor="let file of collectionFiles">
+          <div class="file-preview" (click)="viewFile(file)">
+            <img *ngIf="file.type === 'image' || file.type.startsWith('image/')" 
+                 [src]="file.url" 
+                 [alt]="file.name"
+                 class="file-image">
+            <video *ngIf="file.type === 'video' || file.type.startsWith('video/')" 
+                   [src]="file.url" 
+                   class="file-video" 
+                   muted>
+            </video>
+            <div class="file-overlay">
+              <div class="file-actions">
+                <button class="action-btn view-btn" 
+                        (click)="viewFile(file); $event.stopPropagation()"
+                        title="View File">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </button>
+                <button class="action-btn download-btn" 
+                        (click)="downloadFile(file); $event.stopPropagation()"
+                        title="Download File">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="file-info">
+            <h3 class="file-name">{{ file.name }}</h3>
+            <p class="file-meta">
+              {{ formatFileSize(file.size) }} • {{ formatDate(file.uploadedAt) }}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="empty-files" *ngIf="!collectionFiles.length">
+        <div class="empty-icon">
+          <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z" fill="currentColor"/>
+          </svg>
+        </div>
+        <h3>No Files in Collection</h3>
+        <p>This collection doesn't contain any files yet.</p>
+      </div>
+    </div>
+
+    <div class="share-section">
+      <h3>Share this Collection</h3>
+      <div class="share-url-container">
+        <input type="text" 
+               [value]="collection ? urlGeneratorService.generateCollectionShareUrl(collection.id) : ''" 
+               readonly 
+               class="share-url-input">
+        <button class="copy-btn" (click)="copyShareUrl()">Copy Link</button>
+      </div>
+    </div>
+  </div>
+</div> 

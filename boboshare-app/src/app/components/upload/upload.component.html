@@ -1,21 +1,4 @@
 <div class="upload-container">
-  <!-- Test Section - Remove this later -->
-  <div style="background: #e3f2fd; padding: 15px; margin-bottom: 20px; border-radius: 8px; border: 2px solid #2196f3;">
-    <h3 style="color: #1976d2; margin: 0 0 10px 0;">🧪 Component Test Section</h3>
-    <p style="margin: 5px 0;"><strong>Auto Collection URL:</strong> {{ autoCollectionUrl || 'EMPTY' }}</p>
-    <p style="margin: 5px 0;"><strong>Upload Results Count:</strong> {{ uploadResults.length }}</p>
-    <p style="margin: 5px 0;"><strong>Selected Files Count:</strong> {{ selectedFiles.length }}</p>
-    <button (click)="generateAutoCollectionUrl()" style="background: #2196f3; color: white; border: none; padding: 8px 16px; border-radius: 4px; margin-right: 10px;">
-      Generate Test URL
-    </button>
-    <button (click)="forceGenerateUrl()" style="background: #4caf50; color: white; border: none; padding: 8px 16px; border-radius: 4px; margin-right: 10px;">
-      Force Generate
-    </button>
-    <button (click)="testComponent()" style="background: #ff9800; color: white; border: none; padding: 8px 16px; border-radius: 4px;">
-      Test Component
-    </button>
-  </div>
-
   <div class="upload-header">
     <h2>Share Your Daily Moments</h2>
     <p>Upload photos or videos to share with your friends via unique URLs</p>
@@ -54,13 +37,13 @@
       <div class="file-grid">
         <div class="file-item" *ngFor="let file of selectedFiles; let i = index">
           <div class="file-preview-content">
-            <img *ngIf="file.type.startsWith('image/')" 
+            <img *ngIf="file.type === 'image' || file.type.startsWith('image/')"
                  [src]="file.preview" 
                  [alt]="file.name"
-                 class="preview-image">
-            <video *ngIf="file.type.startsWith('video/')" 
+                 class="file-preview">
+            <video *ngIf="file.type === 'video' || file.type.startsWith('video/')"
                    [src]="file.preview" 
-                   class="preview-video" 
+                   class="file-preview" 
                    muted>
             </video>
             <div class="file-info">
@@ -155,20 +138,6 @@
           </div>
         </div>
       </div>
-    </div>
-    
-    <!-- Debug info (remove this later) -->
-    <div class="debug-info" style="background: #f0f0f0; padding: 10px; margin: 10px 0; border-radius: 5px;">
-      <p><strong>Debug Info:</strong></p>
-      <p>Upload Results: {{ uploadResults.length }}</p>
-      <p>Auto Collection URL: {{ autoCollectionUrl || 'Not generated' }}</p>
-      <p>Is Uploading: {{ isUploading }}</p>
-      <button (click)="generateAutoCollectionUrl()" style="background: #007bff; color: white; border: none; padding: 5px 10px; border-radius: 3px; margin: 5px;">
-        Test Generate URL
-      </button>
-      <button (click)="forceGenerateUrl()" style="background: #28a745; color: white; border: none; padding: 5px 10px; border-radius: 3px; margin: 5px;">
-        Force Generate URL
-      </button>
     </div>
     
     <!-- Manual Collection Options -->

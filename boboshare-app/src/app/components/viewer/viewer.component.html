@@ -28,12 +28,12 @@
 
   <div class="media-viewer">
     <div class="media-container">
-      <img *ngIf="file.type.startsWith('image/')" 
+      <img *ngIf="file.type === 'image' || file.type.startsWith('image/')" 
            [src]="file.url" 
            [alt]="file.name"
            class="media-content"
            (click)="toggleFullscreen()">
-      <video *ngIf="file.type.startsWith('video/')" 
+      <video *ngIf="file.type === 'video' || file.type.startsWith('video/')" 
              [src]="file.url" 
              class="media-content"
              controls
